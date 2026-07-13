@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Otomasyon Değerlendirmesi / AI Automation Assessment</title>
+<style>
+  :root{
+    --bg:#f6f5f1; --card:#ffffff; --ink:#1a1a18; --muted:#6b6a64;
+    --accent:#c96442; --accent-soft:#f3d9cf; --green:#3d7a4f; --green-soft:#dcefe2;
+    --amber:#b07b1e; --amber-soft:#f6ead2; --gray-soft:#e8e7e2; --blue:#3b6ea5; --blue-soft:#dde8f3;
+    --radius:14px; --shadow:0 2px 12px rgba(0,0,0,.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;min-height:100vh}
+  .wrap{max-width:720px;margin:0 auto;padding:24px 16px 60px}
+  header.app{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+  .brand{font-weight:700;font-size:15px;letter-spacing:.2px}
+  .brand span{color:var(--accent)}
+  .langtoggle{display:flex;gap:4px;background:var(--gray-soft);border-radius:99px;padding:3px}
+  .langtoggle button{border:none;background:transparent;padding:5px 14px;border-radius:99px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)}
+  .langtoggle button.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+  .progress{height:6px;background:var(--gray-soft);border-radius:99px;overflow:hidden;margin-bottom:26px}
+  .progress i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .35s ease}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:30px 28px;animation:fade .3s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .kicker{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:8px}
+  h1{font-size:26px;line-height:1.25;margin-bottom:12px;font-weight:750}
+  h2{font-size:21px;line-height:1.3;margin-bottom:10px;font-weight:700}
+  p.sub{color:var(--muted);font-size:15px;margin-bottom:20px}
+  .hint{font-size:13px;color:var(--muted);background:var(--bg);border-radius:10px;padding:10px 14px;margin-bottom:18px}
+  .opts{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+  .opt{display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--gray-soft);border-radius:12px;padding:14px 16px;cursor:pointer;background:var(--card);text-align:left;font-size:15px;transition:border-color .15s, background .15s;width:100%}
+  .opt:hover{border-color:var(--accent)}
+  .opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+  .opt .dot{flex:0 0 18px;height:18px;border:2px solid #c9c8c1;border-radius:50%;margin-top:2px}
+  .opt.sel .dot{border-color:var(--accent);background:var(--accent);box-shadow:inset 0 0 0 3.5px var(--accent-soft)}
+  .opt b{display:block;font-size:15px}
+  .opt small{color:var(--muted);font-size:13px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+  .chip{border:1.5px solid var(--gray-soft);background:var(--card);border-radius:99px;padding:8px 14px;font-size:14px;cursor:pointer}
+  .chip.sel{border-color:var(--accent);background:var(--accent-soft);font-weight:600}
+  input[type=text],input[type=email]{width:100%;border:1.5px solid var(--gray-soft);border-radius:10px;padding:12px 14px;font-size:15px;margin-bottom:12px;background:var(--card);color:var(--ink)}
+  textarea{width:100%;border:1.5px solid var(--gray-soft);border-radius:10px;padding:12px 14px;font-size:15px;margin-bottom:12px;background:var(--card);color:var(--ink);font-family:inherit;resize:vertical;min-height:64px}
+  input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+  label.fl{font-size:13px;font-weight:600;color:var(--muted);display:block;margin-bottom:5px}
+  .btnrow{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:8px}
+  .btn{border:none;border-radius:10px;padding:12px 22px;font-size:15px;font-weight:650;cursor:pointer}
+  .btn.primary{background:var(--ink);color:#fff}
+  .btn.primary:disabled{opacity:.35;cursor:not-allowed}
+  .btn.ghost{background:transparent;color:var(--muted);padding:12px 10px}
+  .btn.accent{background:var(--accent);color:#fff}
+  .tasklist{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
+  .taskrow{display:flex;align-items:center;gap:10px;background:var(--bg);border-radius:10px;padding:10px 14px;font-size:15px}
+  .taskrow span{flex:1}
+  .taskrow button{border:none;background:none;color:var(--muted);cursor:pointer;font-size:16px}
+  .addrow{display:flex;gap:8px;margin-bottom:16px}
+  .addrow input{margin-bottom:0}
+  .addrow .btn{white-space:nowrap}
+  .tag{display:inline-block;font-size:12px;font-weight:700;border-radius:99px;padding:3px 12px;margin-bottom:6px}
+  .tag.g{background:var(--green-soft);color:var(--green)}
+  .tag.a{background:var(--amber-soft);color:var(--amber)}
+  .tag.r{background:var(--gray-soft);color:var(--muted)}
+  .tag.b{background:var(--blue-soft);color:var(--blue)}
+  .rescard{border:1.5px solid var(--gray-soft);border-radius:12px;padding:18px;margin-bottom:14px;background:var(--card)}
+  .rescard.top{border-color:var(--accent);box-shadow:var(--shadow)}
+  .reshead{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .reshead h3{font-size:16px;flex:1}
+  .score{font-size:22px;font-weight:800}
+  .score small{font-size:12px;color:var(--muted);font-weight:600}
+  .bars{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+  .bar{display:grid;grid-template-columns:130px 1fr 42px;align-items:center;gap:10px;font-size:12.5px;color:var(--muted)}
+  .bar .tr{height:7px;background:var(--gray-soft);border-radius:99px;overflow:hidden}
+  .bar .tr i{display:block;height:100%;background:var(--accent);border-radius:99px}
+  .dilig{margin-top:12px;background:var(--bg);border-radius:10px;padding:12px 14px;font-size:13.5px}
+  .dilig b{display:block;margin-bottom:4px;font-size:13px}
+  .dilig ul{margin:0 0 0 18px}
+  .dilig li{margin-bottom:3px}
+  .callout{background:var(--accent-soft);border-radius:12px;padding:18px;margin-bottom:22px}
+  .callout h3{font-size:15px;margin-bottom:6px}
+  .callout p{font-size:14px}
+  .statement{background:var(--bg);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:14px 16px;font-size:14px;margin:14px 0 20px;white-space:pre-line}
+  .foot{margin-top:26px;font-size:12px;color:var(--muted);text-align:center;line-height:1.6}
+  .foot a{color:var(--accent)}
+  .stepnote{font-size:12.5px;color:var(--muted);margin-bottom:14px}
+  .skiplink{font-size:12.5px;color:var(--muted);text-decoration:underline;cursor:pointer;background:none;border:none}
+  @media print{
+    body{background:#fff}
+    .wrap{max-width:100%;padding:0}
+    header.app,.progress,.btnrow,.noprint{display:none!important}
+    .card{box-shadow:none;padding:0}
+    .rescard{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="app">
+    <div class="brand">AI<span>·</span>Readiness</div>
+    <div class="langtoggle">
+      <button id="btn-tr" onclick="setLang('tr')">TR</button>
+      <button id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+  </header>
+  <div class="progress noprint"><i id="pbar" style="width:2%"></i></div>
+  <main id="app"></main>
+  <div class="foot noprint" id="foot"></div>
+</div>
+<script>
+/* ================= CONFIG ================= */
+const CONSULTANT_EMAIL = "kosehakann@gmail.com";
+const WEBHOOK_URL = "https://formspree.io/f/mkodnbdz"; // PILOT: every completed assessment + feedback is sent here automatically
+
+/* ================= STATE ================= */
+let S = {
+  lang: "tr",
+  biz: { name:"", sector:null, sectorText:"", size:null },
+  tasks: [],            // {name, delegation, scores:{A..G}, cons, parked, humanLed}
+  discoveryIdx: 0,
+  taskIdx: 0,
+  qIdx: 0,
+  lead: { name:"", email:"", company:"" },
+  feedback: { useful:null, consult:null, confusing:"", comment:"", sent:false },
+  screen: "welcome"
+};
+function fb(){ if(!S.feedback) S.feedback={useful:null,consult:null,confusing:"",comment:"",sent:false}; return S.feedback; }
+try {
+  const saved = localStorage.getItem("aiassess_v3");
+  if (saved) { const p = JSON.parse(saved); if (p && p.screen && p.screen !== "welcome") S._resume = p; }
+} catch(e){}
+
+function save(){ try{ localStorage.setItem("aiassess_v3", JSON.stringify(S)); }catch(e){} }
+
+/* ================= I18N ================= */
+const T = {
+tr:{
+  welcome_kicker:"Ücretsiz Değerlendirme · ~10 dakika",
+  welcome_h:"İşletmenizde yapay zekâya devredilecek ilk işi birlikte bulalım",
+  welcome_p:"Sadece bir çekiç ile her şeyi tamir edemezsin. Yapay zekâ da sihirli bir araç değildir — ona nerede ihtiyacınız olduğunu bilmelisiniz. Bu değerlendirme, kanıtlanmış bir puanlama çerçevesiyle işlerinizi analiz eder ve otomasyona en hazır görevleri sıralar.",
+  welcome_b1:"Görevlerinizi keşfedin", welcome_b2:"Etki + fizibilite puanlayın", welcome_b3:"Öncelik sıralı rapor alın",
+  start:"Başla", resume:"Kaldığın yerden devam et", startover:"Baştan başla",
+  biz_h:"Önce işletmenizi tanıyalım",
+  biz_name:"İşletme adı", biz_name_ph:"örn. Köse Ticaret",
+  biz_sector:"Sektörünüz hangisi?",
+  sectors:[["retail","Perakende / e-ticaret"],["services","Hizmet (kuaför, tamir, temizlik...)"],["food","Yiyecek & içecek"],["mfg","Üretim / imalat"],["prof","Profesyonel hizmetler (muhasebe, hukuk, ajans...)"],["other","Diğer"]],
+  biz_size:"Kaç kişi çalışıyorsunuz?",
+  sizes:[["1","Sadece ben"],["2-5","2–5 kişi"],["6-20","6–20 kişi"],["21+","21+ kişi"]],
+  next:"Devam", back:"Geri",
+  disc_kicker:"Adım 1 · Görev Envanteri",
+  disc_note:"Soru {n}/4 — aklınıza gelenleri seçin veya yazın. Aynı görev birden fazla soruda aklınıza gelirse sorun değil, tekrarları birleştiriyoruz.",
+  disc_qs:[
+    "Hafta boyunca kendinizi hangi işleri tekrar tekrar yaparken buluyorsunuz?",
+    "Hangi işler, daha stratejik konulara odaklanmanızı engelliyor?",
+    "Operasyonlarınızda sürekli darboğaz yaratan süreçler neler?",
+    "Hata olmaması için en çok kontrol/denetim gerektiren rutin işler hangileri?"
+  ],
+  disc_add_ph:"Kendi görevinizi yazın...", add:"Ekle",
+  review_h:"Görev listeniz",
+  review_p:"Bu görevleri tek tek puanlayacağız. Silmek istediklerinizi çıkarın, eksik varsa ekleyin. İdeal: 3–9 görev.",
+  review_min:"Devam etmek için en az 1 görev ekleyin.",
+  score_kicker:"Görev {n}/{total}",
+  q_deleg:"“{task}” işini düşünün. Bu işin ne kadarını yapay zekâ üstlenebilir?",
+  q_deleg_opts:[
+    ["auto","Tamamı devredilebilir","Standart, belgelenmiş, tekrarlayan bir iş (örn. SSS yanıtları, rapor derleme)"],
+    ["assist","AI taslak hazırlar, insan onaylar","AI hazırlık yapabilir ama gönderilmeden önce kontrol şart (örn. kişiye özel e-postalar)"],
+    ["human","İnsanda kalmalı","Yüksek riskli, duygusal veya muhakeme gerektiren iş (örn. şikâyet çözme, pazarlık)"]
+  ],
+  q_deleg_hint:"AI Fluency yaklaşımı: “AI yapabilir mi?” değil, “AI yapmalı mı?” diye sorun.",
+  human_noted:"Not edildi — bu iş insan odaklı olarak raporda yer alacak. Puanlama gerekmiyor.",
+  q_A:"Bu iş şu an ne kadar zamanınızı alıyor?",
+  q_A_opts:[["1","Haftada 1 saatten az"],["2","Haftada 1–2 saat"],["3","Haftada birkaç saat"],["4","Neredeyse her gün 1 saat"],["5","Her gün birkaç saat"]],
+  q_B:"Bu işe harcadığınız zaman boşa çıksa, yerine ne koyardınız? (Fırsat maliyeti)",
+  q_B_opts:[["1","Pek bir şey değişmezdi"],["2","Küçük iyileştirmeler yapardım"],["3","Orta düzeyde değerli işlere zaman kalırdı"],["4","Önemli müşteri/satış işlerine odaklanırdım"],["5","İşi büyütecek stratejik fırsatlar açılırdı"]],
+  q_C:"Bu işte ne sıklıkla hata oluyor (veya hata riski var)?",
+  q_C_opts:[["1","Neredeyse hiç"],["2","Nadiren, küçük hatalar"],["3","Ara sıra önemli hatalar"],["4","Sık hatalar oluyor"],["5","Sık ve maliyetli hatalar"]],
+  q_D:"Bu işin otomasyonu işletmenizin genelinde işe yarar mı? (Ölçeklenebilirlik)",
+  q_D_opts:[["1","Tek seferlik / tek kişilik iş"],["2","Sınırlı tekrar"],["3","Orta düzeyde tekrarlanabilir"],["4","Birden çok alanda kullanılır"],["5","Tüm işletmede yüksek ölçekli kullanılır"]],
+  lowimpact_h:"Bu görev düşük etkili görünüyor",
+  lowimpact_p:"Etki puanı düşük çıktı. Detaylı puanlamaya devam etmek yerine bu görevi 'beklemeye' alabilirsiniz.",
+  lowimpact_park:"Beklemeye al, sonrakine geç", lowimpact_cont:"Yine de puanlamaya devam et",
+  q_cons:"Bu iş kusurlu yapılırsa sonucu ne olur?",
+  q_cons_opts:[["low","Küçük rahatsızlık","İçeride fark edilir, kolayca düzeltilir"],["mid","Gözle görülür sorun","Müşteri fark edebilir, telafi gerekir"],["high","Ciddi zarar","Para, itibar veya müşteri kaybı riski"]],
+  q_cons_hint:"Bu soru puana katılmaz; raporunuzdaki denetim önerilerini belirler.",
+  q_E:"Yeni işe giren biri, sadece mevcut belgelerinizle bu işi doğru yapabilir mi? (Süreç standardizasyonu)",
+  q_E_opts:[["1","Hayır — iş tamamen duruma göre, yazılı kural yok"],["2","Çok az yazılı bilgi var"],["3","Temel belgeler var ama deneyim şart"],["4","Büyük ölçüde belgelenmiş"],["5","Evet — adımlar, kurallar ve istisnalar tam belgeli"]],
+  q_F:"Bu iş için gereken veriler ne durumda? (Veri ve sistem erişimi)",
+  q_F_opts:[["1","Kâğıtta veya çok eski sistemlerde"],["2","Dağınık, toplaması zor"],["3","Mevcut ama ciddi hazırlık gerekiyor"],["4","Çoğunlukla dijital ve düzenli"],["5","Yapılandırılmış, modern sistemlerde hazır"]],
+  q_G:"Bu işi otomatikleştirmek teknik olarak ne kadar zor olur?",
+  q_G_opts:[["5","Çok kolay — hazır araçlarla, özelleştirmesiz"],["4","Kolay — yaygın araçlar + biraz özelleştirme"],["3","Orta — betik/özel geliştirme gerekir"],["2","Zor — karmaşık entegrasyonlar gerekir"],["1","Çok zor — Ar-Ge / en yeni teknoloji gerekir"]],
+  q_G_hint:"Emin değilseniz içgüdünüzle puanlayın — rapor, danışmanlık görüşmesinde birlikte netleştirilebilir.",
+  lead_kicker:"Son adım",
+  lead_h:"Raporunuz hazır — size ulaştıralım",
+  lead_p:"Sonuç sayfasını hemen göreceksiniz. Bilgilerinizi bırakırsanız raporu birlikte yorumlamak için sizinle iletişime geçebilirim.",
+  lead_name:"Adınız", lead_email:"E-posta", lead_company:"İşletme (opsiyonel)",
+  lead_btn:"Raporumu göster", lead_skip:"Bilgi vermeden geç",
+  res_kicker:"Değerlendirme Raporu",
+  res_h:"{biz} için otomasyon öncelikleri",
+  res_top_h:"İlk adımınız: “{task}”",
+  res_top_p:"35 üzerinden {score} puanla en güçlü aday. Tavsiyemiz: teknolojik sınırları zorlamadan önce kanıtlanmış, ana akım araçlarla başlayın. Basit ve yüksek etkili bir görevle erken başarı, ivme kazandırır ve riski azaltır.",
+  badge_ready:"Otomasyona hazır", badge_strong:"Güçlü aday", badge_improve:"Önce iyileştir", badge_human:"İnsanda kalmalı", badge_parked:"Beklemede (düşük etki)",
+  bar_impact:"Etki (A–D)", bar_feas:"Fizibilite (E–F)", bar_ease:"Uygulama kolaylığı (G)",
+  mode_auto:"Tam devredilebilir", mode_assist:"AI taslak + insan onayı",
+  dilig_h:"Özen (Diligence) kontrol listesi",
+  dilig_high:["Başlangıçta her çıktıyı müşteriye ulaşmadan önce gözden geçirin","En az 3 olası hata senaryosu yazın ve her biri için önlem belirleyin","Bir sorun olursa otomasyonu durduracak net tetikleyiciler tanımlayın"],
+  dilig_mid:["İlk haftalarda çıktıların tamamını, sonra örneklem bazlı kontrol edin","Müşteri geri bildirimlerini haftalık takip edin"],
+  dilig_low:["Periyodik örneklem kontrolü yeterli (örn. haftalık nokta kontrolleri)","Basit bir hata kaydı tutun"],
+  dilig_trans:"Şeffaflık: AI kullanımını müşteri ve ekibinize nasıl bildireceğinizi kararlaştırın; insana ulaşma yolu her zaman açık olsun.",
+  improve_note:"Bu görevler otomasyona geçmeden önce iyileştirme istiyor: süreç belgeleyin (E) ve/veya verileri dijitalleştirin (F). Bunlar yapılınca puan yeniden hesaplanabilir.",
+  human_note:"Bu işleri bilinçli olarak insanda tutuyorsunuz — doğru karar. AI'ın kazandırdığı zamanı tam da bu işlere yatırın: ilişki kurma, kişisel dokunuş, kritik kararlar.",
+  stmt_h:"Otomasyon Hazırlık Beyanı (taslak)",
+  stmt_body:"{biz} olarak ilk otomasyon adımımız: “{task}”.\nBu görev seçildi çünkü {mode} nitelikte, etki puanı {impact}/20 ve fizibilite puanı {feas}/10.\nGüvence: {review}\nŞeffaflık: AI'ın rolünü ekip ve müşterilerimize açıkça bildireceğiz ve her zaman bir insana ulaşma seçeneği sunacağız.",
+  stmt_review_high:"tüm çıktılar müşteriye ulaşmadan önce insan kontrolünden geçecek",
+  stmt_review_mid:"ilk dönemde tüm çıktılar, sonrasında örneklem bazında kontrol edilecek",
+  stmt_review_low:"düzenli örneklem kontrolleri yapılacak",
+  stmt_mode_auto:"standart ve belgelenmiş", stmt_mode_assist:"AI taslağı + insan onayı gerektiren",
+  cta_h:"Sonuçları birlikte hayata geçirelim",
+  cta_p:"Bu rapor 'ne'yi gösteriyor; 'nasıl'ı birlikte planlayabiliriz — araç seçimi, kurulum ve ekip eğitimi dahil.",
+  cta_mail:"Raporu danışmana gönder", cta_print:"PDF / Yazdır", cta_restart:"Yeni değerlendirme",
+  mail_subject:"AI Otomasyon Değerlendirme Sonucum",
+  score_word:"puan",
+  biz_other_label:"İşinizi bir cümleyle tanımlayın",
+  biz_other_ph:"örn. düğün fotoğrafçısı, emlak ofisi...",
+  mail_biz:"İşletme", mail_contact:"İletişim", mail_date:"Tarih",
+  cta_mail_hint:"Butona tıkladığınızda rapor dosyası bilgisayarınıza iner ve e-posta taslağı açılır. İndirilen dosyayı maile eklemeniz yeterli.",
+  mail_attach_note:"Not: Raporun tam hali ekteki dosyadadır.",
+  fb_h:"Son bir şey — görüşünüz bizim için çok değerli",
+  fb_p:"Bu değerlendirme şu an test aşamasında. 1 dakikanızı ayırırsanız gelişmesine katkıda bulunmuş olursunuz.",
+  fb_useful:"Bu değerlendirme sizin için faydalı oldu mu?",
+  fb_useful_opts:[["1","1 · Hiç"],["2","2"],["3","3 · Orta"],["4","4"],["5","5 · Çok faydalı"]],
+  fb_consult:"Bu sonuçları hayata geçirmek için bir danışmanla çalışmayı düşünür müydünüz?",
+  fb_consult_opts:[["yes","Evet"],["maybe","Belki"],["no","Hayır"]],
+  fb_confusing:"Kafanızı karıştıran ya da zorlandığınız bir yer oldu mu?",
+  fb_confusing_ph:"örn. Süreç standardizasyonu sorusu zordu...",
+  fb_comment:"Eklemek istediğiniz başka bir şey?",
+  fb_comment_ph:"Görüş ve önerileriniz...",
+  fb_send:"Görüşümü gönder",
+  fb_thanks:"Teşekkürler! 🙏",
+  fb_thanks_p:"Görüşünüz iletildi. Zaman ayırdığınız için teşekkürler.",
+  foot:"Çerçeve: Çok kriterli AI otomasyon puanlama sistemi · 4D kavramları Anthropic'in “AI Fluency for Small Businesses” kursundan uyarlanmıştır (CC BY-NC-SA 4.0).",
+  tasks_by_sector:{
+    retail:["Ürün soruları yanıtlamak","Sipariş durumu bildirmek","Stok raporu hazırlamak","Sosyal medya paylaşımı","Fatura kesmek","Tedarikçi takibi","İade taleplerini işlemek"],
+    services:["Randevu planlamak","Fiyat teklifi hazırlamak","Müşteri hatırlatmaları","Sosyal medya paylaşımı","Fatura kesmek","Yeni müşteri kaydı"],
+    food:["Rezervasyon yönetimi","Sipariş almak","Menü/fiyat güncelleme","Sosyal medya paylaşımı","Tedarik siparişi","Yorumlara yanıt vermek"],
+    mfg:["Sipariş takibi","Stok/envanter güncelleme","Kalite kontrol kaydı","Tedarikçi yazışmaları","Sevkiyat planlama","Rapor derleme"],
+    prof:["Müşteri e-postalarını yanıtlamak","Rapor/doküman hazırlamak","Toplantı notları yazmak","Fatura ve tahsilat takibi","Teklif hazırlamak","Veri girişi"],
+    other:["Müşteri sorularını yanıtlamak","E-posta yazışmaları","Fatura ve evrak işleri","Sosyal medya paylaşımı","Rapor hazırlamak","Randevu/plan yönetimi","Veri girişi"]
+  }
+},
+en:{
+  welcome_kicker:"Free Assessment · ~10 minutes",
+  welcome_h:"Let's find the first task your business should hand to AI",
+  welcome_p:"You can't fix everything with a hammer. AI isn't a magic tool either — you need to know where you need it. This assessment analyzes your work with a proven scoring framework and ranks the tasks most ready for automation.",
+  welcome_b1:"Discover your tasks", welcome_b2:"Score impact + feasibility", welcome_b3:"Get a prioritized report",
+  start:"Start", resume:"Resume where you left off", startover:"Start over",
+  biz_h:"First, tell us about your business",
+  biz_name:"Business name", biz_name_ph:"e.g. Acme Trading",
+  biz_sector:"What's your sector?",
+  sectors:[["retail","Retail / e-commerce"],["services","Services (salon, repair, cleaning...)"],["food","Food & beverage"],["mfg","Manufacturing"],["prof","Professional services (accounting, legal, agency...)"],["other","Other"]],
+  biz_other_label:"Describe your business in one line",
+  biz_other_ph:"e.g. wedding photographer, real-estate office...",
+  biz_size:"How many people work there?",
+  sizes:[["1","Just me"],["2-5","2–5 people"],["6-20","6–20 people"],["21+","21+ people"]],
+  next:"Continue", back:"Back",
+  disc_kicker:"Step 1 · Task Inventory",
+  disc_note:"Question {n}/4 — pick what comes to mind or write your own. If the same task comes up in multiple questions, no problem — we merge duplicates.",
+  disc_qs:[
+    "Which tasks do you find yourself doing repeatedly during the week?",
+    "Which activities keep you from focusing on more strategic work?",
+    "Which processes create constant bottlenecks in your operations?",
+    "Which routine tasks require the most oversight to prevent errors?"
+  ],
+  disc_add_ph:"Write your own task...", add:"Add",
+  review_h:"Your task list",
+  review_p:"We'll score these one by one. Remove any you don't want, add anything missing. Ideal: 3–9 tasks.",
+  review_min:"Add at least 1 task to continue.",
+  score_kicker:"Task {n}/{total}",
+  q_deleg:"Think about “{task}”. How much of it could AI take on?",
+  q_deleg_opts:[
+    ["auto","Fully delegable","Standardized, documented, repetitive work (e.g. FAQ answers, compiling reports)"],
+    ["assist","AI drafts, human approves","AI can prepare, but review is required before anything goes out (e.g. personalized emails)"],
+    ["human","Should stay human","High-stakes, emotional, or judgment-heavy work (e.g. resolving complaints, negotiation)"]
+  ],
+  q_deleg_hint:"The AI Fluency approach: ask “should AI do this?” — not just “can it?”",
+  human_noted:"Noted — this task will appear in your report as human-led. No scoring needed.",
+  q_A:"How much of your time does this task take today?",
+  q_A_opts:[["1","Less than 1 hour/week"],["2","1–2 hours/week"],["3","A few hours/week"],["4","About an hour daily"],["5","Several hours daily"]],
+  q_B:"If that time were freed up, what would you do instead? (Opportunity cost)",
+  q_B_opts:[["1","Not much would change"],["2","Small improvements"],["3","Moderately valuable work"],["4","Important customer/sales work"],["5","Strategic opportunities to grow the business"]],
+  q_C:"How often do errors happen (or could happen) in this task?",
+  q_C_opts:[["1","Almost never"],["2","Rarely, minor errors"],["3","Occasional significant errors"],["4","Frequent errors"],["5","Frequent and costly errors"]],
+  q_D:"Would automating this be useful across your whole business? (Scalability)",
+  q_D_opts:[["1","One-off / single-person task"],["2","Limited repetition"],["3","Moderately repeatable"],["4","Useful in several areas"],["5","Highly scalable across the business"]],
+  lowimpact_h:"This task looks low-impact",
+  lowimpact_p:"The impact score came out low. You can park this task instead of continuing the detailed scoring.",
+  lowimpact_park:"Park it, next task", lowimpact_cont:"Continue scoring anyway",
+  q_cons:"What happens if this task is done imperfectly?",
+  q_cons_opts:[["low","Minor inconvenience","Noticed internally, easily fixed"],["mid","Noticeable problem","Customer may notice, needs remedying"],["high","Serious damage","Risk of losing money, reputation, or customers"]],
+  q_cons_hint:"This doesn't affect the score; it shapes the oversight recommendations in your report.",
+  q_E:"Could a new hire do this task correctly using only your existing documentation? (Process standardization)",
+  q_E_opts:[["1","No — it's entirely case-by-case, nothing written"],["2","Very little written down"],["3","Basic docs exist but experience is essential"],["4","Mostly documented"],["5","Yes — steps, rules and exceptions fully documented"]],
+  q_F:"What shape is the data for this task in? (Data & system access)",
+  q_F_opts:[["1","On paper or in legacy systems"],["2","Scattered, hard to gather"],["3","Available but needs significant preparation"],["4","Mostly digital and organized"],["5","Structured and ready in modern systems"]],
+  q_G:"How technically difficult would automating this be?",
+  q_G_opts:[["5","Very easy — standard tools, no customization"],["4","Easy — common tools + some customization"],["3","Moderate — needs scripting / custom development"],["2","Hard — complex integrations needed"],["1","Very hard — needs R&D / cutting-edge tech"]],
+  q_G_hint:"Not sure? Go with your gut — this can be refined together in a consulting session.",
+  lead_kicker:"Last step",
+  lead_h:"Your report is ready — let's get it to you",
+  lead_p:"You'll see the results right away. Leave your details and I can reach out to walk through the report together.",
+  lead_name:"Your name", lead_email:"Email", lead_company:"Business (optional)",
+  lead_btn:"Show my report", lead_skip:"Skip without details",
+  res_kicker:"Assessment Report",
+  res_h:"Automation priorities for {biz}",
+  res_top_h:"Your first step: “{task}”",
+  res_top_p:"Strongest candidate with {score} out of 35. Our advice: start with proven, mainstream tools before pushing technological limits. An early win on a simple, high-impact task builds momentum and reduces risk.",
+  badge_ready:"Ready to automate", badge_strong:"Strong candidate", badge_improve:"Improve first", badge_human:"Keep human", badge_parked:"Parked (low impact)",
+  bar_impact:"Impact (A–D)", bar_feas:"Feasibility (E–F)", bar_ease:"Ease of implementation (G)",
+  mode_auto:"Fully delegable", mode_assist:"AI drafts + human review",
+  dilig_h:"Diligence checklist",
+  dilig_high:["Initially review every output before it reaches a customer","Write down at least 3 possible failure modes and a safeguard for each","Define clear triggers that would pause the automation"],
+  dilig_mid:["Review all outputs in the first weeks, then sample periodically","Track customer feedback weekly"],
+  dilig_low:["Periodic sample checks are enough (e.g. weekly spot-checks)","Keep a simple error log"],
+  dilig_trans:"Transparency: decide how you'll tell customers and staff about AI use; always provide a path to a human.",
+  improve_note:"These tasks need improvement before automation: document the process (E) and/or digitize the data (F). Re-score once done.",
+  human_note:"You're deliberately keeping these human — good call. Invest the time AI saves exactly here: relationship building, personal touches, critical decisions.",
+  stmt_h:"Automation Readiness Statement (draft)",
+  stmt_body:"At {biz}, our first automation step is: “{task}”.\nThis task was chosen because it is {mode}, with an impact score of {impact}/20 and feasibility of {feas}/10.\nSafeguard: {review}\nTransparency: we will be open with our team and customers about AI's role and always offer a path to a human.",
+  stmt_review_high:"every output will be human-reviewed before reaching a customer",
+  stmt_review_mid:"all outputs reviewed initially, then sampled periodically",
+  stmt_review_low:"regular sample checks will be performed",
+  stmt_mode_auto:"standardized and documented", stmt_mode_assist:"AI-drafted with human approval",
+  cta_h:"Let's put these results into action together",
+  cta_p:"This report shows the 'what' — we can plan the 'how' together: tool selection, setup, and team training.",
+  cta_mail:"Send report to consultant", cta_mail_hint:"Clicking downloads the report file and opens an email draft. Just attach the downloaded file to the email.",
+  mail_attach_note:"Note: the full report is in the attached file.",
+  fb_h:"One last thing — your feedback matters",
+  fb_p:"This assessment is in its pilot phase. One minute of your time helps improve it.",
+  fb_useful:"Was this assessment useful for you?",
+  fb_useful_opts:[["1","1 · Not at all"],["2","2"],["3","3 · Somewhat"],["4","4"],["5","5 · Very useful"]],
+  fb_consult:"Would you consider working with a consultant to put these results into action?",
+  fb_consult_opts:[["yes","Yes"],["maybe","Maybe"],["no","No"]],
+  fb_confusing:"Was anything confusing or difficult?",
+  fb_confusing_ph:"e.g. the process standardization question was hard...",
+  fb_comment:"Anything else you'd like to add?",
+  fb_comment_ph:"Your thoughts and suggestions...",
+  fb_send:"Send my feedback",
+  fb_thanks:"Thank you! 🙏",
+  fb_thanks_p:"Your feedback has been sent. Thanks for taking the time.",
+  cta_print:"PDF / Print", cta_restart:"New assessment",
+  mail_subject:"My AI Automation Assessment Results",
+  mail_biz:"Business", mail_contact:"Contact", mail_date:"Date",
+  score_word:"pts",
+  foot:"Framework: multi-criteria AI automation scoring system · 4D concepts adapted from Anthropic's “AI Fluency for Small Businesses” course (CC BY-NC-SA 4.0).",
+  tasks_by_sector:{
+    retail:["Answering product questions","Order status updates","Preparing stock reports","Social media posting","Creating invoices","Supplier follow-ups","Processing returns"],
+    services:["Scheduling appointments","Preparing quotes","Customer reminders","Social media posting","Creating invoices","New client onboarding"],
+    food:["Managing reservations","Taking orders","Updating menu/prices","Social media posting","Ordering supplies","Replying to reviews"],
+    mfg:["Order tracking","Updating inventory","Quality control records","Supplier correspondence","Shipment planning","Compiling reports"],
+    prof:["Answering client emails","Preparing reports/documents","Writing meeting notes","Invoicing & payment follow-up","Preparing proposals","Data entry"],
+    other:["Answering customer questions","Email correspondence","Invoices & paperwork","Social media posting","Preparing reports","Scheduling","Data entry"]
+  }
+}};
+function t(k){ return T[S.lang][k]; }
+function fmt(s, vars){ return s.replace(/\{(\w+)\}/g,(_,k)=>vars[k]!==undefined?vars[k]:"{"+k+"}"); }
+function esc(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+/* ================= NAV / RENDER ================= */
+const app = document.getElementById("app");
+const SCORE_QS = ["A","B","C","D","cons","E","F","G"]; // per-task question order (deleg comes first)
+
+function setLang(l){ S.lang = l; save(); render(); }
+function go(screen){ S.screen = screen; save(); render(); window.scrollTo({top:0,behavior:"smooth"}); }
+
+function progressPct(){
+  const order = {welcome:2, biz:8, discovery:15, review:30, scoring:35, lead:88, results:100};
+  let base = order[S.screen] || 2;
+  if (S.screen === "discovery") base = 12 + S.discoveryIdx * 4;
+  if (S.screen === "scoring" && S.tasks.length){
+    const perTask = 55 / S.tasks.length;
+    base = 32 + S.taskIdx * perTask + (S.qIdx / (SCORE_QS.length+1)) * perTask;
+  }
+  return Math.min(100, base);
+}
+
+function render(){
+  document.getElementById("btn-tr").className = S.lang==="tr" ? "on" : "";
+  document.getElementById("btn-en").className = S.lang==="en" ? "on" : "";
+  document.getElementById("pbar").style.width = progressPct() + "%";
+  document.getElementById("foot").textContent = t("foot");
+  const fns = {welcome:rWelcome, biz:rBiz, discovery:rDiscovery, review:rReview, scoring:rScoring, lowimpact:rLowImpact, lead:rLead, results:rResults};
+  app.innerHTML = "";
+  fns[S.screen]();
+  save();
+}
+
+function card(html){ const d=document.createElement("div"); d.className="card"; d.innerHTML=html; app.appendChild(d); return d; }
+
+/* ================= SCREENS ================= */
+function rWelcome(){
+  const resume = S._resume ? `<button class="btn accent" id="w-resume">${t("resume")}</button>
+    <button class="btn ghost" id="w-startover">${t("startover")}</button>` :
+    `<button class="btn primary" id="w-start">${t("start")}</button>`;
+  card(`
+    <div class="kicker">${t("welcome_kicker")}</div>
+    <h1>${t("welcome_h")}</h1>
+    <p class="sub">${t("welcome_p")}</p>
+    <div class="chips">
+      <span class="chip">1 · ${t("welcome_b1")}</span>
+      <span class="chip">2 · ${t("welcome_b2")}</span>
+      <span class="chip">3 · ${t("welcome_b3")}</span>
+    </div>
+    <div class="btnrow" style="justify-content:flex-start">${resume}</div>
+  `);
+  if (S._resume){
+    document.getElementById("w-resume").onclick = ()=>{ const r=S._resume; delete S._resume; S=r; render(); };
+    document.getElementById("w-startover").onclick = ()=>{ delete S._resume; go("biz"); };
+  } else {
+    document.getElementById("w-start").onclick = ()=>go("biz");
+  }
+}
+
+function rBiz(){
+  const sec = t("sectors").map(([v,l])=>`<button class="chip ${S.biz.sector===v?"sel":""}" data-sec="${v}">${l}</button>`).join("");
+  const siz = t("sizes").map(([v,l])=>`<button class="chip ${S.biz.size===v?"sel":""}" data-siz="${v}">${l}</button>`).join("");
+  const c = card(`
+    <h2>${t("biz_h")}</h2>
+    <label class="fl">${t("biz_name")}</label>
+    <input type="text" id="bizname" placeholder="${t("biz_name_ph")}" value="${esc(S.biz.name)}">
+    <label class="fl">${t("biz_sector")}</label>
+    <div class="chips" id="secchips">${sec}</div>
+    ${S.biz.sector==="other"?`
+    <label class="fl">${t("biz_other_label")}</label>
+    <input type="text" id="sectext" placeholder="${t("biz_other_ph")}" value="${esc(S.biz.sectorText||"")}">`:""}
+    <label class="fl">${t("biz_size")}</label>
+    <div class="chips" id="sizchips">${siz}</div>
+    <div class="btnrow">
+      <button class="btn ghost" id="b-back">← ${t("back")}</button>
+      <button class="btn primary" id="b-next" ${S.biz.sector&&S.biz.size?"":"disabled"}>${t("next")} →</button>
+    </div>
+  `);
+  c.querySelector("#bizname").oninput = e=>{ S.biz.name = e.target.value; save(); };
+  const st = c.querySelector("#sectext");
+  if (st){ st.oninput = e=>{ S.biz.sectorText = e.target.value; save(); }; }
+  c.querySelectorAll("[data-sec]").forEach(b=>b.onclick=()=>{ S.biz.sector=b.dataset.sec; if(b.dataset.sec!=="other") S.biz.sectorText=""; render(); if(b.dataset.sec==="other"){const i=document.getElementById("sectext"); if(i) i.focus();} });
+  c.querySelectorAll("[data-siz]").forEach(b=>b.onclick=()=>{ S.biz.size=b.dataset.siz; render(); });
+  c.querySelector("#b-back").onclick = ()=>go("welcome");
+  c.querySelector("#b-next").onclick = ()=>{ S.discoveryIdx=0; go("discovery"); };
+}
+
+/* keyword map: matches a free-text business description to the closest sector pool */
+const SECTOR_KEYWORDS = {
+  retail:["satış","mağaza","dükkan","dukkan","perakende","butik","market","e-tic","eticaret","shop","store","retail","ecommerce","e-commerce","boutique","sell"],
+  food:["restoran","kafe","cafe","lokanta","yemek","pastane","fırın","firin","büfe","bufe","catering","restaurant","food","bakery","coffee","bar","bistro"],
+  services:["kuaför","kuafor","berber","temizlik","tamir","tamirci","servis","bakım","bakim","güzellik","guzellik","salon","spa","fitness","emlak","fotoğraf","fotograf","nakliyat","oto","repair","cleaning","maintenance","barber","photo","real estate","moving","salon"],
+  mfg:["üretim","uretim","imalat","fabrika","atölye","atolye","tekstil","mobilya","metal","plastik","manufact","factory","production","workshop","textile","furniture"],
+  prof:["muhasebe","hukuk","avukat","danışman","danisman","ajans","yazılım","yazilim","tasarım","tasarim","mimar","mühendis","muhendis","sigorta","eğitim","egitim","kurs","accounting","legal","law","consult","agency","software","design","architect","engineer","marketing","insurance","education","training"]
+};
+function matchSector(txt){
+  txt = (txt||"").toLowerCase();
+  for (const [sec, words] of Object.entries(SECTOR_KEYWORDS)){
+    if (words.some(w=>txt.includes(w))) return sec;
+  }
+  return "other";
+}
+function suggestionsFor(){
+  let sec = S.biz.sector || "other";
+  if (sec==="other" && S.biz.sectorText) sec = matchSector(S.biz.sectorText);
+  return t("tasks_by_sector")[sec] || t("tasks_by_sector").other;
+}
+function hasTask(name){ return S.tasks.some(x=>x.name.trim().toLowerCase()===name.trim().toLowerCase()); }
+function addTask(name){
+  name = name.trim(); if(!name || hasTask(name)) return;
+  S.tasks.push({name, delegation:null, scores:{}, cons:null, parked:false, humanLed:false});
+}
+
+function rDiscovery(){
+  const i = S.discoveryIdx;
+  const sugg = suggestionsFor();
+  const chips = sugg.map(s=>`<button class="chip ${hasTask(s)?"sel":""}" data-t="${esc(s)}">${esc(s)}</button>`).join("");
+  const listed = S.tasks.map((x,ix)=>`<div class="taskrow"><span>${esc(x.name)}</span><button data-del="${ix}">✕</button></div>`).join("");
+  const c = card(`
+    <div class="kicker">${t("disc_kicker")}</div>
+    <h2>${t("disc_qs")[i]}</h2>
+    <div class="stepnote">${fmt(t("disc_note"),{n:i+1})}</div>
+    <div class="chips">${chips}</div>
+    <div class="addrow">
+      <input type="text" id="newtask" placeholder="${t("disc_add_ph")}">
+      <button class="btn accent" id="addbtn">${t("add")}</button>
+    </div>
+    ${S.tasks.length?`<div class="tasklist">${listed}</div>`:""}
+    <div class="btnrow">
+      <button class="btn ghost" id="d-back">← ${t("back")}</button>
+      <button class="btn primary" id="d-next">${t("next")} →</button>
+    </div>
+  `);
+  c.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{
+    const n=b.dataset.t;
+    if(hasTask(n)) S.tasks=S.tasks.filter(x=>x.name!==n); else addTask(n);
+    render();
+  });
+  const inp=c.querySelector("#newtask");
+  const doAdd=()=>{ if(inp.value.trim()){ addTask(inp.value); render(); } };
+  c.querySelector("#addbtn").onclick=doAdd;
+  inp.onkeydown=e=>{ if(e.key==="Enter") doAdd(); };
+  c.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{ S.tasks.splice(+b.dataset.del,1); render(); });
+  c.querySelector("#d-back").onclick=()=>{ if(i>0){S.discoveryIdx--; render();} else go("biz"); };
+  c.querySelector("#d-next").onclick=()=>{ if(i<3){S.discoveryIdx++; render();} else go("review"); };
+}
+
+function rReview(){
+  const listed = S.tasks.map((x,ix)=>`<div class="taskrow"><span>${esc(x.name)}</span><button data-del="${ix}">✕</button></div>`).join("");
+  const c = card(`
+    <div class="kicker">${t("disc_kicker")}</div>
+    <h2>${t("review_h")}</h2>
+    <p class="sub">${t("review_p")}</p>
+    <div class="tasklist">${listed || `<div class="hint">${t("review_min")}</div>`}</div>
+    <div class="addrow">
+      <input type="text" id="newtask" placeholder="${t("disc_add_ph")}">
+      <button class="btn accent" id="addbtn">${t("add")}</button>
+    </div>
+    <div class="btnrow">
+      <button class="btn ghost" id="r-back">← ${t("back")}</button>
+      <button class="btn primary" id="r-next" ${S.tasks.length?"":"disabled"}>${t("next")} →</button>
+    </div>
+  `);
+  const inp=c.querySelector("#newtask");
+  const doAdd=()=>{ if(inp.value.trim()){ addTask(inp.value); render(); } };
+  c.querySelector("#addbtn").onclick=doAdd;
+  inp.onkeydown=e=>{ if(e.key==="Enter") doAdd(); };
+  c.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{ S.tasks.splice(+b.dataset.del,1); render(); });
+  c.querySelector("#r-back").onclick=()=>{ S.discoveryIdx=3; go("discovery"); };
+  c.querySelector("#r-next").onclick=()=>{ S.taskIdx=0; S.qIdx=-1; go("scoring"); };
+}
+
+/* --- scoring flow: qIdx -1 = delegation, then SCORE_QS by index --- */
+function currentTask(){ return S.tasks[S.taskIdx]; }
+function nextTaskOrLead(){
+  if (S.taskIdx < S.tasks.length-1){ S.taskIdx++; S.qIdx=-1; go("scoring"); }
+  else go("lead");
+}
+function impactOf(task){ return (task.scores.A||0)+(task.scores.B||0)+(task.scores.C||0)+(task.scores.D||0); }
+
+function rScoring(){
+  const task = currentTask();
+  if (!task){ go("lead"); return; }
+  const kicker = fmt(t("score_kicker"),{n:S.taskIdx+1,total:S.tasks.length}) + " · " + esc(task.name);
+
+  if (S.qIdx === -1){ // delegation question
+    const opts = t("q_deleg_opts").map(([v,l,d])=>`
+      <button class="opt ${task.delegation===v?"sel":""}" data-v="${v}">
+        <span class="dot"></span><span><b>${l}</b><small>${d}</small></span>
+      </button>`).join("");
+    const c = card(`
+      <div class="kicker">${kicker}</div>
+      <h2>${fmt(t("q_deleg"),{task:esc(task.name)})}</h2>
+      <div class="hint">💡 ${t("q_deleg_hint")}</div>
+      <div class="opts">${opts}</div>
+      <div class="btnrow"><button class="btn ghost" id="s-back">← ${t("back")}</button><span></span></div>
+    `);
+    c.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{
+      task.delegation = b.dataset.v;
+      if (b.dataset.v === "human"){
+        task.humanLed = true; task.parked=false;
+        b.classList.add("sel");
+        setTimeout(nextTaskOrLead, 350);
+      } else {
+        task.humanLed = false;
+        S.qIdx = 0; render();
+      }
+    });
+    c.querySelector("#s-back").onclick=()=>{
+      if (S.taskIdx>0){ S.taskIdx--; S.qIdx = SCORE_QS.length-1; render(); }
+      else go("review");
+    };
+    return;
+  }
+
+  const key = SCORE_QS[S.qIdx];
+  const qkey = "q_"+key, okey = "q_"+key+"_opts";
+  const hint = (key==="cons") ? t("q_cons_hint") : (key==="G") ? t("q_G_hint") : (key==="deleg") ? t("q_deleg_hint") : null;
+  const cur = (key==="cons") ? task.cons : task.scores[key];
+  const opts = t(okey).map(o=>{
+    const v=o[0], l=o[1], d=o[2];
+    return `<button class="opt ${String(cur)===String(v)?"sel":""}" data-v="${v}">
+      <span class="dot"></span><span><b>${l}</b>${d?`<small>${d}</small>`:""}</span></button>`;
+  }).join("");
+  const c = card(`
+    <div class="kicker">${kicker}</div>
+    <h2>${t(qkey)}</h2>
+    ${hint?`<div class="hint">💡 ${hint}</div>`:""}
+    <div class="opts">${opts}</div>
+    <div class="btnrow"><button class="btn ghost" id="s-back">← ${t("back")}</button><span></span></div>
+  `);
+  c.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{
+    const v=b.dataset.v;
+    if (key==="cons") task.cons=v; else task.scores[key]=+v;
+    b.classList.add("sel");
+    setTimeout(()=>{
+      // branching: after D, if impact very low → offer to park
+      if (key==="D" && impactOf(task) <= 8 && !task._lowAsked){
+        task._lowAsked = true; go("lowimpact"); return;
+      }
+      if (S.qIdx < SCORE_QS.length-1){ S.qIdx++; render(); }
+      else { task.parked=false; nextTaskOrLead(); }
+    }, 250);
+  });
+  c.querySelector("#s-back").onclick=()=>{ S.qIdx--; render(); };
+}
+
+function rLowImpact(){
+  const task = currentTask();
+  const c = card(`
+    <div class="kicker">${esc(task.name)}</div>
+    <h2>${t("lowimpact_h")}</h2>
+    <p class="sub">${t("lowimpact_p")}</p>
+    <div class="opts">
+      <button class="opt" id="park"><span class="dot"></span><span><b>${t("lowimpact_park")}</b></span></button>
+      <button class="opt" id="cont"><span class="dot"></span><span><b>${t("lowimpact_cont")}</b></span></button>
+    </div>
+  `);
+  c.querySelector("#park").onclick=()=>{ task.parked=true; nextTaskOrLead(); };
+  c.querySelector("#cont").onclick=()=>{ S.qIdx++; go("scoring"); };
+}
+
+function rLead(){
+  const c = card(`
+    <div class="kicker">${t("lead_kicker")}</div>
+    <h2>${t("lead_h")}</h2>
+    <p class="sub">${t("lead_p")}</p>
+    <label class="fl">${t("lead_name")}</label>
+    <input type="text" id="ln" value="${esc(S.lead.name)}">
+    <label class="fl">${t("lead_email")}</label>
+    <input type="email" id="le" value="${esc(S.lead.email)}">
+    <label class="fl">${t("lead_company")}</label>
+    <input type="text" id="lc" value="${esc(S.lead.company||S.biz.name)}">
+    <div class="btnrow">
+      <button class="skiplink" id="lskip">${t("lead_skip")}</button>
+      <button class="btn primary" id="lgo">${t("lead_btn")}</button>
+    </div>
+  `);
+  const done = ()=>go("results");
+  c.querySelector("#lgo").onclick=()=>{
+    S.lead.name=c.querySelector("#ln").value.trim();
+    S.lead.email=c.querySelector("#le").value.trim();
+    S.lead.company=c.querySelector("#lc").value.trim();
+    if(!S.lead.email){ c.querySelector("#le").style.borderColor="var(--accent)"; c.querySelector("#le").focus(); return; }
+    if (WEBHOOK_URL){
+      try{ fetch(WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({lead:S.lead,biz:S.biz,results:resultRows()})}); }catch(e){}
+    }
+    done();
+  };
+  c.querySelector("#lskip").onclick=done;
+}
+
+/* ================= RESULTS ================= */
+function totalOf(x){ return impactOf(x)+(x.scores.E||0)+(x.scores.F||0)+(x.scores.G||0); }
+function feasOf(x){ return (x.scores.E||0)+(x.scores.F||0); }
+function badgeOf(x){
+  if (x.humanLed) return ["b", t("badge_human")];
+  if (x.parked) return ["r", t("badge_parked")];
+  const tot = totalOf(x);
+  if (tot>=28) return ["g", t("badge_ready")];
+  if (tot>=22) return ["a", t("badge_strong")];
+  return ["r", t("badge_improve")];
+}
+function resultRows(){
+  return S.tasks.map(x=>({name:x.name, humanLed:x.humanLed, parked:x.parked, total:totalOf(x), impact:impactOf(x), feas:feasOf(x), ease:x.scores.G||0, cons:x.cons, delegation:x.delegation}));
+}
+
+function buildMailBody(scored, humans, parked, bizName, top){
+  const L = [];
+  const secLabel = (t("sectors").find(s=>s[0]===S.biz.sector)||["",""])[1] + (S.biz.sectorText ? " — " + S.biz.sectorText : "");
+  L.push("=== " + t("res_kicker") + " ===");
+  L.push(t("mail_date") + ": " + new Date().toLocaleDateString(S.lang==="tr"?"tr-TR":"en-US",{year:"numeric",month:"long",day:"numeric"}));
+  L.push(t("mail_biz") + ": " + bizName + " · " + secLabel + " · " + (S.biz.size||"?"));
+  if (S.lead.name || S.lead.email || S.lead.company){
+    L.push(t("mail_contact") + ": " + [S.lead.name, S.lead.email, S.lead.company].filter(Boolean).join(" · "));
+  }
+  L.push("");
+  if (top) L.push("🎯 " + fmt(t("res_top_h"),{task:top.name}) + " — " + totalOf(top) + "/35");
+  L.push("");
+  scored.forEach((x,i)=>{
+    L.push((i+1) + ". " + x.name + " — " + totalOf(x) + "/35 [" + badgeOf(x)[1] + "]");
+    L.push("   " + t("bar_impact") + ": " + impactOf(x) + "/20 · " + t("bar_feas") + ": " + feasOf(x) + "/10 · " + t("bar_ease") + ": " + (x.scores.G||0) + "/5");
+    L.push("   " + (x.delegation==="assist" ? t("mode_assist") : t("mode_auto")));
+  });
+  let n = scored.length;
+  humans.forEach(x=>{ L.push((++n) + ". " + x.name + " — " + t("badge_human")); });
+  parked.forEach(x=>{ L.push((++n) + ". " + x.name + " — " + t("badge_parked")); });
+  if (top){
+    const review = top.cons==="high" ? t("stmt_review_high") : top.cons==="mid" ? t("stmt_review_mid") : t("stmt_review_low");
+    const mode = top.delegation==="assist" ? t("stmt_mode_assist") : t("stmt_mode_auto");
+    L.push("");
+    L.push("--- " + t("stmt_h") + " ---");
+    L.push(fmt(t("stmt_body"),{biz:bizName,task:top.name,mode,impact:impactOf(top),feas:feasOf(top),review}));
+  }
+  return L.join("\n");
+}
+
+/* PILOT: sends the full assessment (and feedback, when given) to the Formspree endpoint */
+function sendPilotData(stage){
+  if (!WEBHOOK_URL) return;
+  const scored = S.tasks.filter(x=>!x.humanLed && !x.parked).sort((a,b)=>totalOf(b)-totalOf(a));
+  const humans = S.tasks.filter(x=>x.humanLed);
+  const parked = S.tasks.filter(x=>x.parked && !x.humanLed);
+  const bizName = S.biz.name || "-";
+  const payload = {
+    _subject: "[AI Pilot] " + bizName + " (" + stage + ")",
+    stage, lang: S.lang, date: new Date().toISOString(),
+    name: S.lead.name || "", email: S.lead.email || "",
+    business: bizName,
+    sector: (S.biz.sector||"") + (S.biz.sectorText ? " — " + S.biz.sectorText : ""),
+    team_size: S.biz.size || "",
+    top_task: scored[0] ? scored[0].name + " (" + totalOf(scored[0]) + "/35)" : "",
+    useful: fb().useful || "", would_consult: fb().consult || "",
+    confusing: fb().confusing || "", comment: fb().comment || "",
+    report: buildMailBody(scored, humans, parked, bizName, scored[0])
+  };
+  try{
+    fetch(WEBHOOK_URL, {method:"POST", headers:{"Content-Type":"application/json","Accept":"application/json"}, body: JSON.stringify(payload)});
+  }catch(e){}
+}
+
+/* builds a self-contained HTML report file and downloads it, so the user can attach it to the email */
+function downloadReport(bizName){
+  const node = document.querySelector("#app .card");
+  if (!node) return;
+  const clone = node.cloneNode(true);
+  clone.querySelectorAll(".noprint").forEach(e=>e.remove());
+  const css = document.querySelector("style").innerHTML;
+  const html = `<!DOCTYPE html>
+<html lang="${S.lang}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${esc(t("res_kicker"))} · ${esc(bizName)}</title><style>${css}
+body{padding:24px 16px}</style></head>
+<body><div class="wrap">${clone.outerHTML}
+<div class="foot">${esc(t("foot"))}</div></div></body></html>`;
+  const blob = new Blob([html], {type:"text/html;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  const safe = (bizName||"rapor").replace(/[^\wşŞıİğĞüÜöÖçÇ-]+/g,"-").replace(/^-+|-+$/g,"") || "rapor";
+  a.download = (S.lang==="tr" ? "AI-degerlendirme-raporu-" : "AI-assessment-report-") + safe + ".html";
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+
+function rResults(){
+  if (WEBHOOK_URL && !S._resultsSent){ S._resultsSent = true; save(); sendPilotData("results"); }
+  const scored = S.tasks.filter(x=>!x.humanLed && !x.parked).sort((a,b)=>totalOf(b)-totalOf(a));
+  const humans = S.tasks.filter(x=>x.humanLed);
+  const parked = S.tasks.filter(x=>x.parked && !x.humanLed);
+  const improve = scored.filter(x=>totalOf(x)<22);
+  const top = scored[0];
+  const bizName = S.biz.name || (S.lang==="tr"?"işletmeniz":"your business");
+
+  let topHtml = "";
+  let stmtHtml = "";
+  if (top){
+    const review = top.cons==="high" ? t("stmt_review_high") : top.cons==="mid" ? t("stmt_review_mid") : t("stmt_review_low");
+    const mode = top.delegation==="assist" ? t("stmt_mode_assist") : t("stmt_mode_auto");
+    topHtml = `<div class="callout">
+      <h3>🎯 ${fmt(t("res_top_h"),{task:esc(top.name)})}</h3>
+      <p>${fmt(t("res_top_p"),{score:totalOf(top)})}</p>
+    </div>`;
+    stmtHtml = `<h2 style="font-size:17px;margin-top:26px">${t("stmt_h")}</h2>
+      <div class="statement">${esc(fmt(t("stmt_body"),{biz:bizName,task:top.name,mode,impact:impactOf(top),feas:feasOf(top),review}))}</div>`;
+  }
+
+  const cards = scored.map((x,ix)=>{
+    const [cls,label] = badgeOf(x);
+    const dil = x.cons==="high" ? t("dilig_high") : x.cons==="mid" ? t("dilig_mid") : t("dilig_low");
+    const modeTag = x.delegation==="assist" ? `<span class="tag a">${t("mode_assist")}</span>` : `<span class="tag g">${t("mode_auto")}</span>`;
+    return `<div class="rescard ${ix===0?"top":""}">
+      <span class="tag ${cls}">${label}</span> ${modeTag}
+      <div class="reshead"><h3>${ix+1}. ${esc(x.name)}</h3><div class="score">${totalOf(x)}<small>/35 ${t("score_word")}</small></div></div>
+      <div class="bars">
+        <div class="bar"><span>${t("bar_impact")}</span><span class="tr"><i style="width:${impactOf(x)/20*100}%"></i></span><span>${impactOf(x)}/20</span></div>
+        <div class="bar"><span>${t("bar_feas")}</span><span class="tr"><i style="width:${feasOf(x)/10*100}%"></i></span><span>${feasOf(x)}/10</span></div>
+        <div class="bar"><span>${t("bar_ease")}</span><span class="tr"><i style="width:${(x.scores.G||0)/5*100}%"></i></span><span>${x.scores.G||0}/5</span></div>
+      </div>
+      ${ix<3?`<div class="dilig"><b>✅ ${t("dilig_h")}</b><ul>${dil.map(d=>`<li>${d}</li>`).join("")}</ul><div style="margin-top:6px">${t("dilig_trans")}</div></div>`:""}
+    </div>`;
+  }).join("");
+
+  const improveHtml = improve.length ? `<div class="hint" style="margin-top:8px">🛠 ${t("improve_note")}</div>` : "";
+  // numbering continues across sections so nothing looks "missing" (scored 1..n, then human, then parked)
+  let seq = scored.length;
+  const humanHtml = humans.length ? `
+    <h2 style="font-size:17px;margin-top:26px">${t("badge_human")}</h2>
+    <div class="hint">🤝 ${t("human_note")}</div>
+    ${humans.map(x=>`<div class="taskrow"><span>${++seq}. ${esc(x.name)}</span><span class="tag b">${t("badge_human")}</span></div>`).join("")}` : "";
+  const parkedHtml = parked.length ? `
+    <div style="margin-top:16px">${parked.map(x=>`<div class="taskrow"><span>${++seq}. ${esc(x.name)}</span><span class="tag r">${t("badge_parked")}</span></div>`).join("")}</div>` : "";
+
+  const mailBody = encodeURIComponent(t("mail_attach_note") + "\n\n" + buildMailBody(scored, humans, parked, bizName, top));
+  const mailtoUrl = `mailto:${CONSULTANT_EMAIL}?subject=${encodeURIComponent(t("mail_subject"))}&body=${mailBody}`;
+
+  const c = card(`
+    <div class="kicker">${t("res_kicker")}</div>
+    <h1 style="font-size:22px">${fmt(t("res_h"),{biz:esc(bizName)})}</h1>
+    <p class="sub">${new Date().toLocaleDateString(S.lang==="tr"?"tr-TR":"en-US",{year:"numeric",month:"long",day:"numeric"})}</p>
+    ${topHtml}
+    ${cards}
+    ${improveHtml}
+    ${humanHtml}
+    ${parkedHtml}
+    ${stmtHtml}
+    <div class="callout noprint" style="margin-top:24px">
+      <h3>${t("cta_h")}</h3>
+      <p>${t("cta_p")}</p>
+      <div class="btnrow" style="justify-content:flex-start;margin-top:12px;flex-wrap:wrap">
+        <button class="btn accent" id="sendmail">${t("cta_mail")}</button>
+        <button class="btn primary" onclick="window.print()">${t("cta_print")}</button>
+        <button class="btn ghost" id="restart">${t("cta_restart")}</button>
+      </div>
+      <div class="stepnote" style="margin-top:10px;margin-bottom:0">${t("cta_mail_hint")}</div>
+    </div>
+    ${fb().sent ? `
+    <div class="callout noprint" style="background:var(--blue-soft)">
+      <h3>${t("fb_thanks")}</h3>
+      <p>${t("fb_thanks_p")}</p>
+    </div>` : `
+    <div class="callout noprint" style="background:var(--blue-soft)">
+      <h3>${t("fb_h")}</h3>
+      <p style="margin-bottom:14px">${t("fb_p")}</p>
+      <label class="fl">${t("fb_useful")}</label>
+      <div class="chips">${t("fb_useful_opts").map(([v,l])=>`<button class="chip ${fb().useful===v?"sel":""}" data-fbu="${v}">${l}</button>`).join("")}</div>
+      <label class="fl">${t("fb_consult")}</label>
+      <div class="chips">${t("fb_consult_opts").map(([v,l])=>`<button class="chip ${fb().consult===v?"sel":""}" data-fbc="${v}">${l}</button>`).join("")}</div>
+      <label class="fl">${t("fb_confusing")}</label>
+      <textarea id="fbconf" placeholder="${t("fb_confusing_ph")}">${esc(fb().confusing)}</textarea>
+      <label class="fl">${t("fb_comment")}</label>
+      <textarea id="fbcom" placeholder="${t("fb_comment_ph")}">${esc(fb().comment)}</textarea>
+      <div class="btnrow" style="justify-content:flex-end">
+        <button class="btn primary" id="fbsend">${t("fb_send")}</button>
+      </div>
+    </div>`}
+  `);
+  if (!fb().sent){
+    const grab = ()=>{
+      const a=c.querySelector("#fbconf"), b=c.querySelector("#fbcom");
+      if(a) fb().confusing=a.value; if(b) fb().comment=b.value; save();
+    };
+    c.querySelectorAll("[data-fbu]").forEach(b=>b.onclick=()=>{ grab(); fb().useful=b.dataset.fbu; render(); });
+    c.querySelectorAll("[data-fbc]").forEach(b=>b.onclick=()=>{ grab(); fb().consult=b.dataset.fbc; render(); });
+    c.querySelector("#fbsend").onclick=()=>{ grab(); sendPilotData("feedback"); fb().sent=true; save(); render(); };
+  }
+  c.querySelector("#sendmail").onclick=()=>{
+    downloadReport(bizName);
+    setTimeout(()=>{ window.location.href = mailtoUrl; }, 500);
+  };
+  c.querySelector("#restart").onclick=()=>{
+    try{ localStorage.removeItem("aiassess_v3"); }catch(e){}
+    S={lang:S.lang,biz:{name:"",sector:null,sectorText:"",size:null},tasks:[],discoveryIdx:0,taskIdx:0,qIdx:0,lead:{name:"",email:"",company:""},feedback:{useful:null,consult:null,confusing:"",comment:"",sent:false},screen:"welcome"};
+    render();
+  };
+}
+
+render();
+</script>
+</body>
+</html>
